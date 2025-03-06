@@ -1,0 +1,42 @@
+<div class="row">
+  <div class="col-3">
+    <ul>
+      <li *ngFor="let local of locais">
+        {{ local.nome }}
+        <button class="btn btn-danger" (click)="deletarLocal(local.id)">Deletar</button>
+        <button class="btn btn-primary" (click)="editarLocal(local.id)">Editar</button>
+      </li>
+    </ul>
+  </div>
+  <div class="col-6">
+    <button class="btn btn-primary" (click)="mostrarFormulario()">Mostrar Formulário</button>
+  </div>
+  <div class="col-6" *ngIf="mostrar">
+    <form>
+      <div class="form-group">
+        <label>Nome</label>
+        <input type="text" class="form-control" placeholder="Nome">
+      </div>
+      <div class="form-group">
+        <label>Endereço</label>
+        <input type="text" class="form-control" placeholder="Endereço">
+      </div>
+      <button type="submit" class="btn btn-primary" (click)="adicionarLocal()">Adicionar</button>
+    </form>
+  </div>
+  <div class="col-9" *ngIf="mostrarEdicaoForm">
+    <h3>Editar Local</h3>
+    <form (ngSubmit)="confirmarEdicao()">
+      <input type="hidden" [(ngModel)]="localEditando.id" name="id">
+
+      <label>Nome:</label>
+      <input type="text" [(ngModel)]="localEditando.nome" name="nome" required>
+
+      <label>Endereço:</label>
+      <input type="text" [(ngModel)]="localEditando.endereco" name="endereco" required>
+
+      <button type="submit" class="btn btn-success">Salvar</button>
+      <button type="button" class="btn btn-secondary" (click)="cancelarEdicao()">Cancelar</button>
+    </form>
+  </div>
+</div>

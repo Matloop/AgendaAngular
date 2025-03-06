@@ -1,0 +1,87 @@
+<div class="row">
+  <div class="col-3">
+    <ul>
+      <li *ngFor="let compromisso of compromissos">
+        {{ compromisso.titulo }}
+        <button class="btn btn-danger" (click)="deletarCompromisso(compromisso.id)">
+          Deletar
+        </button>
+        <button class="btn btn-primary" (click)="editarCompromisso(compromisso.id)">Editar</button>
+
+      </li>
+    </ul>
+  </div>
+  <div class="col-6">
+    <button class="btn btn-primary" (click)="mostrarFormulario()">Mostar Formulario</button>
+  </div>
+  <div class="col-6"  *ngIf="mostrar">
+    <form>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>titulo</label>
+          <input type="text" class="form-control" placeholder="Descrição">
+        </div>
+        <div class="form-group col-md-6">
+          <label>Descrição</label>
+          <input type="text" class="form-control"  placeholder="Descrição">
+        </div>
+      </div>
+      <div class="form-group">
+        <label >Data</label>
+        <input type="text" class="form-control" placeholder="Data">
+      </div>
+      <div class="form-group">
+        <label >Hora</label>
+        <input type="text" class="form-control"placeholder="Hora">
+      </div>
+      <div class="form-group">
+        <label >ContatoId</label>
+        <input type="text" class="form-control"placeholder="ConatoId">
+      </div>
+      <div class="form-group">
+        <label >LocalId</label>
+        <input type="text" class="form-control"placeholder="LocalId">
+      </div>
+      <div class="form-group">
+        <label >UsuarioId</label>
+        <input type="text" class="form-control"placeholder="UsuarioID">
+      </div>
+
+      <div class="form-group">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="gridCheck">
+          <label class="form-check-label" for="gridCheck">
+            Clique em mim
+          </label>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" (click)="adicionarCompromisso()">Entrar</button>
+    </form>
+
+  </div>
+  <div class="col-9" *ngIf="mostrarEdicaoForm" >
+    <div *ngIf="mostrarEdicaoForm">
+      <h3>Editar Compromisso</h3>
+      <form (ngSubmit)="confirmarEdicao()">
+        <input type="hidden" [(ngModel)]="compromissoEditando.id" name="id">
+
+        <label>Título:</label>
+        <input type="text" [(ngModel)]="compromissoEditando.titulo" name="titulo" required>
+
+        <label>Descrição:</label>
+        <textarea [(ngModel)]="compromissoEditando.descricao" name="descricao"></textarea>
+
+        <label>Data:</label>
+        <input type="date" [(ngModel)]="compromissoEditando.data" name="data">
+
+        <label>Hora:</label>
+        <input type="time" [(ngModel)]="compromissoEditando.hora" name="hora">
+
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <button type="button" class="btn btn-secondary" (click)="cancelarEdicao()">Cancelar</button>
+      </form>
+    </div>
+
+
+  </div>
+</div>

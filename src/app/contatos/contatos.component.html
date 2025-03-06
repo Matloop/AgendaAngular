@@ -1,0 +1,49 @@
+<div class="row">
+  <div class="col-3">
+    <ul>
+      <li *ngFor="let contato of contatos">
+        {{ contato.nome }}
+        <button class="btn btn-danger" (click)="deletarContato(contato.id)">Deletar</button>
+        <button class="btn btn-primary" (click)="editarContato(contato.id)">Editar</button>
+      </li>
+    </ul>
+  </div>
+  <div class="col-6">
+    <button class="btn btn-primary" (click)="mostrarFormulario()">Mostrar Formulário</button>
+  </div>
+  <div class="col-6" *ngIf="mostrar">
+    <form>
+      <div class="form-group">
+        <label>Nome</label>
+        <input type="text" class="form-control" placeholder="Nome">
+      </div>
+      <div class="form-group">
+        <label>Telefone</label>
+        <input type="text" class="form-control" placeholder="Telefone">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" class="form-control" placeholder="Email">
+      </div>
+      <button type="submit" class="btn btn-primary" (click)="adicionarContato()">Adicionar</button>
+    </form>
+  </div>
+  <div class="col-9" *ngIf="mostrarEdicaoForm">
+    <h3>Editar Contato</h3>
+    <form (ngSubmit)="confirmarEdicao()">
+      <input type="hidden" [(ngModel)]="contatoEditando.id" name="id">
+
+      <label>Nome:</label>
+      <input type="text" [(ngModel)]="contatoEditando.nome" name="nome" required>
+
+      <label>Telefone:</label>
+      <input type="text" [(ngModel)]="contatoEditando.telefone" name="telefone" required>
+
+      <label>Email:</label>
+      <input type="email" [(ngModel)]="contatoEditando.email" name="email">
+
+      <button type="submit" class="btn btn-success">Salvar</button>
+      <button type="button" class="btn btn-secondary" (click)="cancelarEdicao()">Cancelar</button>
+    </form>
+  </div>
+</div>
