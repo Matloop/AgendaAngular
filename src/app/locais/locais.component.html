@@ -1,42 +1,68 @@
-<div class="row">
-  <div class="col-3">
-    <ul>
-      <li *ngFor="let local of locais">
-        {{ local.nome }}
-        <button class="btn btn-danger" (click)="deletarLocal(local.id)">Deletar</button>
-        <button class="btn btn-primary" (click)="editarLocal(local.id)">Editar</button>
-      </li>
-    </ul>
-  </div>
-  <div class="col-6">
-    <button class="btn btn-primary" (click)="mostrarFormulario()">Mostrar Formulário</button>
-  </div>
-  <div class="col-6" *ngIf="mostrar">
-    <form>
-      <div class="form-group">
-        <label>Nome</label>
-        <input type="text" class="form-control" placeholder="Nome">
-      </div>
-      <div class="form-group">
-        <label>Endereço</label>
-        <input type="text" class="form-control" placeholder="Endereço">
-      </div>
-      <button type="submit" class="btn btn-primary" (click)="adicionarLocal()">Adicionar</button>
-    </form>
-  </div>
-  <div class="col-9" *ngIf="mostrarEdicaoForm">
-    <h3>Editar Local</h3>
-    <form (ngSubmit)="confirmarEdicao()">
-      <input type="hidden" [(ngModel)]="localEditando.id" name="id">
+<!-- src/app/locais/locais.component.html -->
+<div class="container">
+  <h2>Gerenciamento de Locais</h2>
 
-      <label>Nome:</label>
-      <input type="text" [(ngModel)]="localEditando.nome" name="nome" required>
+  <!-- Formulário de Adição -->
+  <div *ngIf="mostrarFormulario" class="form-container">
+    <h3>Adicionar Novo Local</h3>
+    <div class="form-group">
+      <label for="nome">Nome:</label>
+      <input id="nome" [(ngModel)]="localEditando.nome" placeholder="Nome do local">
+    </div>
+    <div class="form-group">
+      <label for="endereco">Endereço:</label>
+      <input id="endereco" [(ngModel)]="localEditando.endereco" placeholder="Endereço completo">
+    </div>
+    <div class="buttons-group">
+      <button (click)="adicionarLocal()" class="btn-save">Salvar</button>
+      <button (click)="mostrarFormulario = false" class="btn-cancel">Cancelar</button>
+    </div>
+  </div>
 
-      <label>Endereço:</label>
-      <input type="text" [(ngModel)]="localEditando.endereco" name="endereco" required>
+  <!-- Botão de Adicionar -->
+  <button *ngIf="!mostrarFormulario" (click)="exibirFormulario()" class="btn-add">Adicionar Local</button>
 
-      <button type="submit" class="btn btn-success">Salvar</button>
-      <button type="button" class="btn btn-secondary" (click)="cancelarEdicao()">Cancelar</button>
-    </form>
+  <!-- Lista de Locais -->
+  <div class="locais-list">
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Endereço</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let local of locais">
+          <ng-container *ngIf="localAtualId !== local.id; else editFormRow">
+            <td>{{ local.nome }}</td>
+            <td>{{ local.endereco }}</td>
+            <td class="actions">
+              <button (click)="editarLocal(local.id!)" class="btn-edit">Editar</button>
+              <button (click)="deletarLocal(local.id!)" class="btn-delete">Excluir</button>
+            </td>
+          </ng-container>
+
+          <ng-template #editFormRow>
+            <td colspan="3" *ngIf="mostrarEdicaoForm" class="edit-form-cell">
+              <div class="edit-form">
+                <div class="form-group">
+                  <label for="editNome">Nome:</label>
+                  <input id="editNome" [(ngModel)]="localEditando.nome" placeholder="Nome do local">
+                </div>
+                <div class="form-group">
+                  <label for="editEndereco">Endereço:</label>
+                  <input id="editEndereco" [(ngModel)]="localEditando.endereco" placeholder="Endereço completo">
+                </div>
+                <div class="buttons-group">
+                  <button (click)="confirmarEdicao()" class="btn-save">Salvar</button>
+                  <button (click)="cancelarEdicao()" class="btn-cancel">Cancelar</button>
+                </div>
+              </div>
+            </td>
+          </ng-template>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>

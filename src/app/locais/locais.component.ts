@@ -1,54 +1,58 @@
-import { NgFor, NgIf } from '@angular/common';
-import { Component } from '@angular/core';
+// src/app/locais/locais.component.ts
+import { Component, OnInit } from '@angular/core';
+import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface Local {
-  id: number;
-  nome: string;
-  endereco: string;
-}
+import { LocaisService } from '../services/locais.service';
+import { Local } from '../models/local.model';
 
 @Component({
   selector: 'app-locais',
-  imports: [FormsModule, NgFor, NgIf],
+  standalone: true,
+  imports: [FormsModule, NgFor, NgIf, CommonModule],
   templateUrl: './locais.component.html',
-  styleUrl: './locais.component.css'
+  styleUrls: ['./locais.component.css']
 })
-export class LocaisComponent {
-  locais: Local[] = [
-    { id: 1, nome: 'Escritório Central', endereco: 'Rua A, 123' },
-    { id: 2, nome: 'Auditório Principal', endereco: 'Avenida B, 456' }
-  ];
-
-  mostrar: boolean = false;
-
-  localEditando: Local = {
-    id: 0,
-    nome: '',
-    endereco: ''
-  };
-
+export class LocaisComponent implements OnInit {
+  locais: Local[] = [];
+  mostrarFormulario: boolean = false;
+  localEditando: Local = { nome: '', endereco: '' };
   localAtualId: number | null = null;
   mostrarEdicaoForm: boolean = false;
 
-  adicionarLocal() {
-    const novoLocal: Local = {
-      id: this.locais.length + 1,
-      nome: 'Novo Local',
-      endereco: 'Endereço Padrão'
-    };
-    this.locais.push(novoLocal);
+  constructor(private locaisService: LocaisService) {}
+
+  ngOnInit(): void {
+    this.carregarLocais();
   }
 
-  mostrarFormulario() {
-    this.mostrar = !this.mostrar;
+  carregarLocais(): void {
+    this.locaisService.getLocais().subscribe({
+      next: (locais) => this.locais = locais,
+      error: (err) => console.error('Erro ao carregar locais:', err)
+    });
   }
 
-  deletarLocal(id: number) {
-    this.locais = this.locais.filter(local => local.id !== id);
+  adicionarLocal(): void {
+    this.locaisService.addLocal(this.localEditando).subscribe({
+      next: () => {
+        this.carregarLocais();
+        this.mostrarFormulario = false;
+        this.resetarFormulario();
+      },
+      error: (err) => console.error('Erro ao adicionar local:', err)
+    });
   }
 
-  editarLocal(id: number) {
+  deletarLocal(id: number): void {
+    this.locaisService.deleteLocal(id).subscribe({
+      next: () => {
+        this.locais = this.locais.filter(local => local.id !== id);
+      },
+      error: (err) => console.error('Erro ao deletar local:', err)
+    });
+  }
+
+  editarLocal(id: number): void {
     this.localAtualId = id;
     const localSelecionado = this.locais.find(l => l.id === id);
 
@@ -58,23 +62,31 @@ export class LocaisComponent {
     }
   }
 
-  confirmarEdicao() {
-    if (this.localEditando && this.localAtualId !== null) {
-      const index = this.locais.findIndex(l => l.id === this.localAtualId);
-
-      if (index !== -1) {
-        this.locais[index] = { ...this.localEditando };
-      }
-
-      this.localEditando;
-      this.localAtualId = null;
-      this.mostrarEdicaoForm = false;
+  confirmarEdicao(): void {
+    if (this.localAtualId !== null) {
+      this.locaisService.updateLocal(this.localAtualId, this.localEditando)
+        .subscribe({
+          next: () => {
+            this.carregarLocais();
+            this.cancelarEdicao();
+          },
+          error: (err) => console.error('Erro ao atualizar local:', err)
+        });
     }
   }
 
-  cancelarEdicao() {
-    this.localEditando;
+  cancelarEdicao(): void {
+    this.resetarFormulario();
     this.localAtualId = null;
     this.mostrarEdicaoForm = false;
+  }
+
+  resetarFormulario(): void {
+    this.localEditando = { nome: '', endereco: '' };
+  }
+
+  exibirFormulario(): void {
+    this.resetarFormulario();
+    this.mostrarFormulario = true;
   }
 }

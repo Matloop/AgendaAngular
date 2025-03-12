@@ -1,60 +1,68 @@
-import { NgFor, NgIf } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface Contato {
-  id: number;
-  nome: string;
-  telefone: string;
-  email: string;
-}
+import { ContatosService } from '../services/contatos.service';
+import { Contato } from '../models/contato.model';
 
 @Component({
   selector: 'app-contatos',
-  imports: [FormsModule, NgFor, NgIf],
+  standalone: true,
+  imports: [FormsModule, CommonModule], // Simplificado os imports
   templateUrl: './contatos.component.html',
-  styleUrl: './contatos.component.css'
+  styleUrls: ['./contatos.component.css']
 })
-export class ContatosComponent {
-  contatos: Contato[] = [
-    { id: 1, nome: 'João Silva', telefone: '123456789', email: 'joao@email.com' },
-    { id: 2, nome: 'Maria Souza', telefone: '987654321', email: 'maria@email.com' }
-  ];
-
+export class ContatosComponent implements OnInit {
+  contatos: Contato[] = [];
   mostrar: boolean = false;
-
-  contatoEditando: Contato = {
-    id: 0,
-    nome: '',
-    telefone: '',
-    email: ''
-  };
-
+  contatoEditando: Contato = { id: 0, nome: '', telefone: '', email: '' };
   contatoAtualId: number | null = null;
   mostrarEdicaoForm: boolean = false;
 
-  adicionarContato() {
-    const novoContato: Contato = {
-      id: this.contatos.length + 1,
-      nome: 'Novo Contato',
-      telefone: '000000000',
-      email: 'novo@email.com'
-    };
-    this.contatos.push(novoContato);
+  constructor(private contatosService: ContatosService) {}
+
+  ngOnInit(): void {
+    this.carregarContatos();
   }
 
-  mostrarFormulario() {
-    this.mostrar = !this.mostrar;
+  carregarContatos(): void {
+    this.contatosService.getContatos().subscribe({
+      next: (contatos) => this.contatos = contatos,
+      error: (err) => console.error('Erro ao carregar contatos:', err)
+    });
+  }
+
+  adicionarContato(novoContato: Contato) {
+    // Crie uma cópia para não modificar o objeto de edição diretamente
+    const contatoParaAdicionar = {
+      nome: novoContato.nome,
+      telefone: novoContato.telefone,
+      email: novoContato.email
+    };
+    
+    this.contatosService.addContato(contatoParaAdicionar).subscribe({
+      next: () => {
+        this.carregarContatos();
+        this.mostrar = false;
+        // Limpar o formulário após adicionar
+        this.contatoEditando = { id: 0, nome: '', telefone: '', email: '' };
+      },
+      error: (err) => console.error('Erro ao adicionar contato:', err)
+    });
   }
 
   deletarContato(id: number) {
-    this.contatos = this.contatos.filter(contato => contato.id !== id);
+    this.contatosService.deleteContato(id).subscribe({
+      next: () => {
+        this.contatos = this.contatos.filter(contato => contato.id !== id);
+      },
+      error: (err) => console.error('Erro ao deletar contato:', err)
+    });
   }
 
   editarContato(id: number) {
     this.contatoAtualId = id;
     const contatoSelecionado = this.contatos.find(c => c.id === id);
-
+    
     if (contatoSelecionado) {
       this.contatoEditando = { ...contatoSelecionado };
       this.mostrarEdicaoForm = true;
@@ -62,21 +70,20 @@ export class ContatosComponent {
   }
 
   confirmarEdicao() {
-    if (this.contatoEditando && this.contatoAtualId !== null) {
-      const index = this.contatos.findIndex(c => c.id === this.contatoAtualId);
-
-      if (index !== -1) {
-        this.contatos[index] = { ...this.contatoEditando };
-      }
-
-      this.contatoEditando;
-      this.contatoAtualId = null;
-      this.mostrarEdicaoForm = false;
+    if (this.contatoAtualId !== null) {
+      this.contatosService.updateContato(this.contatoAtualId, this.contatoEditando)
+        .subscribe({
+          next: () => {
+            this.carregarContatos();
+            this.cancelarEdicao();
+          },
+          error: (err) => console.error('Erro ao atualizar contato:', err)
+        });
     }
   }
 
   cancelarEdicao() {
-    this.contatoEditando;
+    this.contatoEditando = { id: 0, nome: '', telefone: '', email: '' };
     this.contatoAtualId = null;
     this.mostrarEdicaoForm = false;
   }
