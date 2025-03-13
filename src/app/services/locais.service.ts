@@ -7,7 +7,7 @@ import { Local } from '../models/local.model';
   providedIn: 'root'
 })
 export class LocaisService {
-  private apiUrl = 'http://localhost:3001/locais';
+  private apiUrl = 'http://localhost:3000/locais';
 
   constructor(private http: HttpClient) { }
 

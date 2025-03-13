@@ -7,7 +7,7 @@ import { Contato } from '../models/contato.model';
   providedIn: 'root'
 })
 export class ContatosService {
-  private apiUrl = 'http://localhost:3001/contatos'; // URL da API
+  private apiUrl = 'http://localhost:3000/contatos'; // URL da API
 
   constructor(private http: HttpClient) { }
 

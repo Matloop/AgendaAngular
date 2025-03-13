@@ -1,13 +1,65 @@
-import { Component } from '@angular/core';
-import { RouterOutlet, RouterLink } from '@angular/router';
+// app.component.ts
+import { Component, OnInit } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { CommonModule } from '@angular/common';
+
+// Material Imports
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
+
+// Componentes
+import { LoginComponent } from './components/login/login.component';
+
+// Serviços
+import { AuthService } from './core/auth.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    MatToolbarModule,
+    MatButtonModule,
+    MatSidenavModule,
+    MatListModule,
+    MatIconModule,
+    LoginComponent
+  ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
-  title = 'agenda-compromissos';
+export class AppComponent implements OnInit {
+  title = 'Agenda de Compromissos';
+  isAuthenticated = false;
+  isAdmin = false;
+  userName = '';
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    this.updateAuthStatus();
+  }
+
+  updateAuthStatus(): void {
+    this.isAuthenticated = this.authService.isAuthenticated();
+    this.isAdmin = this.authService.isAdmin();
+    
+    const userInfo = this.authService.getUserInfo();
+    if (userInfo) {
+      this.userName = userInfo.name;
+    }
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.isAuthenticated = false;
+    this.isAdmin = false;
+    this.userName = '';
+  }
 }

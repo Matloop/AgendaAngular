@@ -7,7 +7,7 @@ import { Compromisso } from '../models/compromisso.model';
   providedIn: 'root'
 })
 export class CompromissosService {
-  private apiUrl = 'http://localhost:3001/compromissos';
+  private apiUrl = 'http://localhost:3000/compromissos';
 
   constructor(private http: HttpClient) { }
 
