@@ -11,7 +11,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 
 // Componentes
-import { LoginComponent } from './components/login/login.component';
+import { LoginComponent } from './login/login.component';
 
 // Serviços
 import { AuthService } from './core/auth.service';

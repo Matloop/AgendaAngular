@@ -1,25 +1,47 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
+import { CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { AuthService } from '../core/auth.service';
+import { inject } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class AuthGuard implements CanActivate {
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
+// Usando a nova sintaxe de Guards funcional do Angular 15+
+export const AuthGuard: CanActivateFn = (
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot
+) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): boolean {
-    
-    if (this.authService.isAuthenticated()) {
-      return true;
-    }
+  if (authService.isAuthenticated()) {
+    return true;
+  }
 
-    this.router.navigate(['/login'], { queryParams: { returnUrl: state.url }});
+  // Salvar URL atual para redirecionamento após login
+  authService.saveReturnUrl(state.url);
+  
+  router.navigate(['/login']);
+  return false;
+};
+
+// Implementação do AdminGuard como função
+export const AdminGuard: CanActivateFn = (
+  route: ActivatedRouteSnapshot, 
+  state: RouterStateSnapshot
+) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (authService.isAuthenticated() && authService.isAdmin()) {
+    return true;
+  }
+
+  if (!authService.isAuthenticated()) {
+    // Não autenticado - redirecionar para login
+    authService.saveReturnUrl(state.url);
+    router.navigate(['/login']);
     return false;
   }
-}
+  
+  // Autenticado mas não é admin - redirecionar para página principal
+  router.navigate(['/compromissos']);
+  return false;
+};
