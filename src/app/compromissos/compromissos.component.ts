@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { CompromissosService } from '../services/compromissos.service';
 import { ContatosService } from '../services/contatos.service';
 import { LocaisService } from '../services/locais.service';
-import { PermissoesService } from '../services/permissoes.service';
 import { AuthService } from '../core/auth.service';
 import { Compromisso } from '../models/compromisso.model';
 import { Contato } from '../models/contato.model';
@@ -38,7 +37,6 @@ export class CompromissosComponent implements OnInit {
     private compromissosService: CompromissosService,
     private contatosService: ContatosService,
     private locaisService: LocaisService,
-    private permissoesService: PermissoesService,
     private authService: AuthService
   ) {}
 
@@ -49,15 +47,13 @@ export class CompromissosComponent implements OnInit {
   }
 
   carregarCompromissos(): void {
-    // Se o usuário for admin, carregar todos os compromissos
-    // Senão, carregar apenas os compromissos do usuário atual
-    if (this.permissoesService.isAdmin()) {
+    const userId = this.authService.getCurrentUserId();
+    if (this.authService.isAdmin()) {
       this.compromissosService.getCompromissos().subscribe({
         next: (compromissos) => this.compromissos = compromissos,
         error: (err) => console.error('Erro ao carregar compromissos:', err)
       });
-    } else {
-      const userId = this.permissoesService.getCurrentUserId();
+    } else if (userId) {
       this.compromissosService.getCompromissosByUsuario(userId).subscribe({
         next: (compromissos) => this.compromissos = compromissos,
         error: (err) => console.error('Erro ao carregar compromissos:', err)
@@ -80,14 +76,13 @@ export class CompromissosComponent implements OnInit {
   }
 
   adicionarCompromisso(): void {
-    if (!this.permissoesService.canCreateCompromisso()) {
-      console.error('Sem permissão para criar compromisso');
+    const userId = this.authService.getCurrentUserId();
+    if (!userId) {
+      console.error('Usuário não autenticado');
       return;
     }
-    
-    // Definir o usuário atual como proprietário do compromisso
-    this.compromissoEditando.usuarioId = this.permissoesService.getCurrentUserId();
-    
+
+    this.compromissoEditando.usuarioId = userId;
     this.compromissosService.addCompromisso(this.compromissoEditando).subscribe({
       next: () => {
         this.carregarCompromissos();
@@ -100,16 +95,14 @@ export class CompromissosComponent implements OnInit {
 
   deletarCompromisso(id: number): void {
     const compromisso = this.compromissos.find(c => c.id === id);
-    if (!compromisso) return;
-    
-    if (!this.permissoesService.canDeleteCompromisso(compromisso)) {
+    if (!compromisso || !this.podeDeletarCompromisso(compromisso)) {
       console.error('Sem permissão para deletar este compromisso');
       return;
     }
-    
+
     this.compromissosService.deleteCompromisso(id).subscribe({
       next: () => {
-        this.compromissos = this.compromissos.filter(compromisso => compromisso.id !== id);
+        this.compromissos = this.compromissos.filter(c => c.id !== id);
       },
       error: (err) => console.error('Erro ao deletar compromisso:', err)
     });
@@ -117,13 +110,11 @@ export class CompromissosComponent implements OnInit {
 
   editarCompromisso(id: number): void {
     const compromissoSelecionado = this.compromissos.find(c => c.id === id);
-    if (!compromissoSelecionado) return;
-    
-    if (!this.permissoesService.canEditCompromisso(compromissoSelecionado)) {
+    if (!compromissoSelecionado || !this.podeEditarCompromisso(compromissoSelecionado)) {
       console.error('Sem permissão para editar este compromisso');
       return;
     }
-    
+
     this.compromissoAtualId = id;
     this.compromissoEditando = { ...compromissoSelecionado };
     this.mostrarEdicaoForm = true;
@@ -131,13 +122,12 @@ export class CompromissosComponent implements OnInit {
 
   confirmarEdicao(): void {
     if (this.compromissoAtualId !== null) {
-      // Verificar novamente as permissões
       const compromisso = this.compromissos.find(c => c.id === this.compromissoAtualId);
-      if (!compromisso || !this.permissoesService.canEditCompromisso(compromisso)) {
+      if (!compromisso || !this.podeEditarCompromisso(compromisso)) {
         console.error('Sem permissão para editar este compromisso');
         return;
       }
-      
+
       this.compromissosService.updateCompromisso(this.compromissoAtualId, this.compromissoEditando)
         .subscribe({
           next: () => {
@@ -168,39 +158,31 @@ export class CompromissosComponent implements OnInit {
   }
 
   exibirFormulario(): void {
-    if (!this.permissoesService.canCreateCompromisso()) {
-      console.error('Sem permissão para criar compromisso');
-      return;
-    }
-    
     this.resetarFormulario();
     this.mostrarFormulario = true;
   }
 
-  // Método para obter o nome do contato pelo ID
   getNomeContato(id: number): string {
     const contato = this.contatos.find(c => c.id === id);
     return contato ? contato.nome : 'Contato não encontrado';
   }
 
-  // Método para obter o nome do local pelo ID
   getNomeLocal(id: number): string {
     const local = this.locais.find(l => l.id === id);
     return local ? local.nome : 'Local não encontrado';
   }
 
-  // Método para verificar se o usuário pode editar o compromisso
   podeEditarCompromisso(compromisso: Compromisso): boolean {
-    return this.permissoesService.canEditCompromisso(compromisso);
+    const userId = this.authService.getCurrentUserId();
+    return compromisso.usuarioId === userId || this.authService.isAdmin();
   }
-  
-  // Método para verificar se o usuário pode deletar o compromisso
+
   podeDeletarCompromisso(compromisso: Compromisso): boolean {
-    return this.permissoesService.canDeleteCompromisso(compromisso);
+    const userId = this.authService.getCurrentUserId();
+    return compromisso.usuarioId === userId || this.authService.isAdmin();
   }
-  
-  // Método para verificar se o usuário pode criar compromisso
+
   podeCriarCompromisso(): boolean {
-    return this.permissoesService.canCreateCompromisso();
+    return this.authService.isAuthenticated();
   }
 }

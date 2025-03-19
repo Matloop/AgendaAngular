@@ -7,14 +7,14 @@ import { Contato } from '../models/contato.model';
 @Component({
   selector: 'app-contatos',
   standalone: true,
-  imports: [FormsModule, CommonModule], // Simplificado os imports
+  imports: [FormsModule, CommonModule],
   templateUrl: './contatos.component.html',
   styleUrls: ['./contatos.component.css']
 })
 export class ContatosComponent implements OnInit {
   contatos: Contato[] = [];
   mostrar: boolean = false;
-  contatoEditando: Contato = { id: 0, nome: '', telefone: '', email: '' };
+  contatoEditando: Contato = { id: 0, nome: '', telefone: '', email: '', usuarioId: 0 };
   contatoAtualId: number | null = null;
   mostrarEdicaoForm: boolean = false;
 
@@ -32,19 +32,20 @@ export class ContatosComponent implements OnInit {
   }
 
   adicionarContato(novoContato: Contato) {
-    // Crie uma cópia para não modificar o objeto de edição diretamente
+    // Cria uma cópia para não modificar o objeto original
     const contatoParaAdicionar = {
       nome: novoContato.nome,
       telefone: novoContato.telefone,
-      email: novoContato.email
+      email: novoContato.email,
+      usuarioId: novoContato.usuarioId
     };
-    
+
     this.contatosService.addContato(contatoParaAdicionar).subscribe({
       next: () => {
         this.carregarContatos();
         this.mostrar = false;
         // Limpar o formulário após adicionar
-        this.contatoEditando = { id: 0, nome: '', telefone: '', email: '' };
+        this.contatoEditando = { id: 0, nome: '', telefone: '', email: '', usuarioId: 0 };
       },
       error: (err) => console.error('Erro ao adicionar contato:', err)
     });
@@ -62,7 +63,7 @@ export class ContatosComponent implements OnInit {
   editarContato(id: number) {
     this.contatoAtualId = id;
     const contatoSelecionado = this.contatos.find(c => c.id === id);
-    
+
     if (contatoSelecionado) {
       this.contatoEditando = { ...contatoSelecionado };
       this.mostrarEdicaoForm = true;
@@ -71,19 +72,18 @@ export class ContatosComponent implements OnInit {
 
   confirmarEdicao() {
     if (this.contatoAtualId !== null) {
-      this.contatosService.updateContato(this.contatoAtualId, this.contatoEditando)
-        .subscribe({
-          next: () => {
-            this.carregarContatos();
-            this.cancelarEdicao();
-          },
-          error: (err) => console.error('Erro ao atualizar contato:', err)
-        });
+      this.contatosService.updateContato(this.contatoAtualId, this.contatoEditando).subscribe({
+        next: () => {
+          this.carregarContatos();
+          this.cancelarEdicao();
+        },
+        error: (err) => console.error('Erro ao atualizar contato:', err)
+      });
     }
   }
 
   cancelarEdicao() {
-    this.contatoEditando = { id: 0, nome: '', telefone: '', email: '' };
+    this.contatoEditando = { id: 0, nome: '', telefone: '', email: '', usuarioId: 0 };
     this.contatoAtualId = null;
     this.mostrarEdicaoForm = false;
   }

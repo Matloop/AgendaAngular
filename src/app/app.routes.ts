@@ -4,7 +4,7 @@ import { CompromissosComponent } from './compromissos/compromissos.component';
 import { ContatosComponent } from './contatos/contatos.component';
 import { UsuariosComponent } from './usuarios/usuarios.component';
 import { LocaisComponent } from './locais/locais.component';
-import { AuthGuard } from './guards/auth.guard';
+import { authGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
@@ -15,22 +15,22 @@ export const routes: Routes = [
   { 
     path: 'compromissos', 
     component: CompromissosComponent,
-    canActivate: [AuthGuard]
+    canActivate: [authGuard]
   },
   { 
     path: 'contatos', 
     component: ContatosComponent,
-    canActivate: [AuthGuard]
+    canActivate: [authGuard]
   },
   {
     path: 'usuarios',
     component: UsuariosComponent,
-    canActivate: [AuthGuard, AdminGuard] // Apenas administradores podem acessar
+    canActivate: [authGuard, AdminGuard] // Apenas administradores podem acessar
   },
   {
     path: 'locais',
     component: LocaisComponent,
-    canActivate: [AuthGuard, AdminGuard] // Apenas administradores podem acessar
+    canActivate: [authGuard, AdminGuard] // Apenas administradores podem acessar
   },
   { 
     path: '', 
