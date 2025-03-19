@@ -11,7 +11,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 
 // Componentes
-import { LoginComponent } from './login/login.component';
+
 
 // Serviços
 import { AuthService } from './core/auth.service';
@@ -29,7 +29,7 @@ import { AuthService } from './core/auth.service';
     MatSidenavModule,
     MatListModule,
     MatIconModule,
-    LoginComponent
+
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']

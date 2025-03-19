@@ -174,12 +174,12 @@ export class CompromissosComponent implements OnInit {
 
   podeEditarCompromisso(compromisso: Compromisso): boolean {
     const userId = this.authService.getCurrentUserId();
-    return compromisso.usuarioId === userId || this.authService.isAdmin();
+    return compromisso.usuarioId === userId ;
   }
 
   podeDeletarCompromisso(compromisso: Compromisso): boolean {
     const userId = this.authService.getCurrentUserId();
-    return compromisso.usuarioId === userId || this.authService.isAdmin();
+    return compromisso.usuarioId === userId ;
   }
 
   podeCriarCompromisso(): boolean {
