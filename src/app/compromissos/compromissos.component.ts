@@ -81,7 +81,7 @@ export class CompromissosComponent implements OnInit {
       console.error('Usuário não autenticado');
       return;
     }
-
+  
     this.compromissoEditando.usuarioId = userId;
     this.compromissosService.addCompromisso(this.compromissoEditando).subscribe({
       next: () => {

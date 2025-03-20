@@ -3,33 +3,33 @@
 
   <!-- Formulário de Adição -->
   <div *ngIf="mostrarFormulario" class="form-container">
-    <h3>Adicionar Novo Compromisso</h3>
+    <h3>Novo Compromisso</h3>
     <div class="form-group">
       <label for="titulo">Título:</label>
-      <input id="titulo" [(ngModel)]="compromissoEditando.titulo" placeholder="Título do compromisso">
+      <input id="titulo" [(ngModel)]="compromissoEditando.titulo" required>
     </div>
     <div class="form-group">
       <label for="descricao">Descrição:</label>
-      <textarea id="descricao" [(ngModel)]="compromissoEditando.descricao" placeholder="Descrição detalhada"></textarea>
+      <textarea id="descricao" [(ngModel)]="compromissoEditando.descricao"></textarea>
     </div>
     <div class="form-group">
       <label for="data">Data:</label>
-      <input id="data" [(ngModel)]="compromissoEditando.data" type="date">
+      <input id="data" type="date" [(ngModel)]="compromissoEditando.data" required>
     </div>
     <div class="form-group">
       <label for="hora">Hora:</label>
-      <input id="hora" [(ngModel)]="compromissoEditando.hora" type="time">
+      <input id="hora" type="time" [(ngModel)]="compromissoEditando.hora" required>
     </div>
     <div class="form-group">
       <label for="contato">Contato:</label>
-      <select id="contato" [(ngModel)]="compromissoEditando.contatoId">
+      <select id="contato" [(ngModel)]="compromissoEditando.contatoId" required>
         <option [value]="0" disabled>Selecione um contato</option>
         <option *ngFor="let contato of contatos" [value]="contato.id">{{ contato.nome }}</option>
       </select>
     </div>
     <div class="form-group">
       <label for="local">Local:</label>
-      <select id="local" [(ngModel)]="compromissoEditando.localId">
+      <select id="local" [(ngModel)]="compromissoEditando.localId" required>
         <option [value]="0" disabled>Selecione um local</option>
         <option *ngFor="let local of locais" [value]="local.id">{{ local.nome }}</option>
       </select>
@@ -41,7 +41,9 @@
   </div>
 
   <!-- Botão de Adicionar -->
-  <button *ngIf="!mostrarFormulario && podeCriarCompromisso()" (click)="exibirFormulario()" class="btn-add">
+  <button *ngIf="!mostrarFormulario && podeCriarCompromisso()" 
+          (click)="exibirFormulario()" 
+          class="btn-add">
     Adicionar Compromisso
   </button>
 
@@ -67,19 +69,24 @@
             <td>{{ getNomeContato(compromisso.contatoId) }}</td>
             <td>{{ getNomeLocal(compromisso.localId) }}</td>
             <td class="actions">
-              <button *ngIf="podeEditarCompromisso(compromisso)" (click)="editarCompromisso(compromisso.id!)" class="btn-edit">
+              <button *ngIf="podeEditarCompromisso(compromisso)" 
+                      (click)="editarCompromisso(compromisso.id!)" 
+                      class="btn-edit">
                 Editar
               </button>
-              <button *ngIf="podeDeletarCompromisso(compromisso)" (click)="deletarCompromisso(compromisso.id!)" class="btn-delete">
+              <button *ngIf="podeDeletarCompromisso(compromisso)" 
+                      (click)="deletarCompromisso(compromisso.id!)" 
+                      class="btn-delete">
                 Excluir
               </button>
             </td>
           </ng-container>
 
           <ng-template #editFormRow>
-            <td colspan="6" *ngIf="mostrarEdicaoForm" class="edit-form-cell">
+            <td colspan="6" class="edit-form-cell">
               <div class="edit-form">
-                <!-- Formulário de edição (igual ao de adição) -->
+                <h3>Editar Compromisso</h3>
+                <!-- Campos de edição (manter como está) -->
               </div>
             </td>
           </ng-template>
