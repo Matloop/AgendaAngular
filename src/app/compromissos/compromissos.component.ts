@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CompromissosService } from '../services/compromissos.service';
 import { ContatosService } from '../services/contatos.service';
 import { LocaisService } from '../services/locais.service';
-import { AuthService } from '../core/auth.service';
+import { AuthService } from '../services/auth.service';
 import { Compromisso } from '../models/compromisso.model';
 import { Contato } from '../models/contato.model';
 import { Local } from '../models/local.model';
@@ -18,7 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule, MatDialog, MatDialogActions, MatDialogContent, MatDialogClose } from '@angular/material/dialog';
@@ -52,7 +52,7 @@ import { Subject } from 'rxjs';
     MatDialogContent,
     MatDialogClose,
     MatLabel,
-    MatOptionModule
+    MatOptionModule,
   ],
   templateUrl: './compromissos.component.html',
   styleUrls: ['./compromissos.component.css']
@@ -61,6 +61,7 @@ export class CompromissosComponent implements OnInit {
   compromissos: Compromisso[] = [];
   contatos: Contato[] = [];
   locais: Local[] = [];
+  dataSource = new MatTableDataSource(this.locais)
   mostrarFormulario: boolean = false;
   
   compromissoEditando: Compromisso = { 
@@ -99,14 +100,13 @@ export class CompromissosComponent implements OnInit {
     this.carregarContatos();
     this.carregarLocais();
     this.carregarCompromissos();
+    this.dataSource.paginator = this.paginator;
   }
   
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
-  
 
   carregarCompromissos(): void {
     this.isLoading = true;

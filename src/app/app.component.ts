@@ -14,7 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 
 // Serviços
-import { AuthService } from './core/auth.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',

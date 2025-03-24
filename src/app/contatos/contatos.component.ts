@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ContatosService } from '../services/contatos.service';
-import { AuthService } from '../core/auth.service';
+import { AuthService } from '../services/auth.service';
 import { Contato } from '../models/contato.model';
 
 // Angular Material Modules
@@ -34,14 +34,14 @@ import { Subject } from 'rxjs';
     MatFormFieldModule,
     MatInputModule,
     MatTableModule,
-    MatPaginatorModule,
     MatProgressSpinnerModule,
     MatDialogModule,
     MatSnackBarModule,
     MatDialogActions,
     MatDialogContent,
     MatDialogClose,
-    MatLabel
+    MatLabel,
+    MatPaginatorModule
   ],
   templateUrl: './contatos.component.html',
   styleUrls: ['./contatos.component.css']

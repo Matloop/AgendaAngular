@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LocaisService } from '../services/locais.service';
 import { Local } from '../models/local.model';
-import { AuthService } from '../core/auth.service';
+import { AuthService } from '../services/auth.service';
 
 // Angular Material Modules
 import { MatCardModule } from '@angular/material/card';
@@ -11,11 +11,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule, MatDialog, MatDialogActions, MatDialogContent, MatDialogClose } from '@angular/material/dialog';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+
 
 import { finalize, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
@@ -41,13 +42,15 @@ import { Subject } from 'rxjs';
     MatDialogActions,
     MatDialogContent,
     MatDialogClose,
-    MatLabel
+    MatLabel,
+    MatPaginatorModule
   ],
   templateUrl: './locais.component.html',
   styleUrls: ['./locais.component.css']
 })
 export class LocaisComponent implements OnInit {
   locais: Local[] = [];
+  dataSource = new MatTableDataSource(this.locais)
   mostrarFormulario: boolean = false;
   
   localEditando: Local = {
@@ -77,11 +80,16 @@ export class LocaisComponent implements OnInit {
   ngOnInit(): void {
     this.isLoading = true;
     this.carregarLocais();
+    this.dataSource.paginator = this.paginator;
   }
   
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
   }
 
   carregarLocais(): void {
