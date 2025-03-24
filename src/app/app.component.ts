@@ -1,5 +1,5 @@
 // app.component.ts
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -32,7 +32,13 @@ import { AuthService } from './core/auth.service';
 
   ],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  template: `
+    <nav *ngIf="isAuthenticated$ | async">
+      <!-- conteúdo da navbar -->
+    </nav>
+    <router-outlet></router-outlet>
+  `
 })
 export class AppComponent implements OnInit {
   title = 'Agenda de Compromissos';
@@ -40,10 +46,21 @@ export class AppComponent implements OnInit {
   isAdmin = false;
   userName = '';
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
+    this.setupAuthSubscription();
     this.updateAuthStatus();
+  }
+
+  private setupAuthSubscription(): void {
+    this.authService.authStatus$.subscribe(() => {
+      this.updateAuthStatus();
+      this.cdr.detectChanges();
+    });
   }
 
   updateAuthStatus(): void {

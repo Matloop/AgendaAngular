@@ -36,7 +36,14 @@ export class AuthService {
 
   login(credentials: { email: string; password: string }): Observable<any> {
     return this.http.post<{ token: string }>(`${this.apiUrl}/login`, credentials).pipe(
-      tap(response => this.handleLoginSuccess(response)),
+      tap(response => {
+        if (response?.token) {
+          this.storeToken(response.token);
+          this.authStatusSubject.next(true);
+          this.showSnackBar('Login realizado com sucesso!');
+          this.redirectAfterLogin();
+        }
+      }),
       catchError(error => this.handleAuthError(error))
     );
   }

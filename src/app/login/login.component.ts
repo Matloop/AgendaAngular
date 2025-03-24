@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -26,13 +26,14 @@ import { MatIconModule } from '@angular/material/icon';
     MatIconModule
   ],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   isLoading = false;
   returnUrl: string = '/compromissos';
   hidePassword = true;
+  isMobile = false;
 
   constructor(
     private fb: FormBuilder,
@@ -42,46 +43,49 @@ export class LoginComponent implements OnInit {
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(3)]]
+      password: ['', [Validators.required]]
     });
   }
 
   ngOnInit(): void {
-    // Recuperar URL de retorno dos parâmetros da rota
+    this.checkViewport();
     this.route.queryParams.subscribe(params => {
-      if (params['returnUrl']) {
-        this.returnUrl = params['returnUrl'];
-        this.authService.saveReturnUrl(this.returnUrl);
-      }
+      this.returnUrl = params['returnUrl'] || '/compromissos';
+      this.authService.saveReturnUrl(this.returnUrl);
     });
 
-    // Verificar se o usuário já está autenticado
     if (this.authService.isAuthenticated()) {
       this.router.navigateByUrl(this.returnUrl);
     }
   }
 
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.checkViewport();
+  }
+
+  private checkViewport() {
+    this.isMobile = window.innerWidth < 768;
+  }
+
   onSubmit(): void {
     if (this.loginForm.valid) {
       this.isLoading = true;
-      
-      this.authService.login(this.loginForm.value).subscribe(
-        () => {
+      this.authService.login(this.loginForm.value).subscribe({
+        next: () => {
           this.isLoading = false;
-          // O AuthService já lida com a navegação
+          this.router.navigateByUrl(this.returnUrl);
         },
-        () => {
+        error: (error) => {
           this.isLoading = false;
-          // O AuthService já lida com os erros
+          this.loginForm.setErrors({ invalidCredentials: true });
         }
-      );
+      });
     } else {
-      // Marcar campos como tocados para mostrar validações
       this.loginForm.markAllAsTouched();
     }
   }
 
-  // Helpers para validação
   get email() { return this.loginForm.get('email'); }
   get password() { return this.loginForm.get('password'); }
 }

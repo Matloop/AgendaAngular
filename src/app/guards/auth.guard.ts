@@ -1,33 +1,35 @@
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from '../core/auth.service';
+import { map, Observable, take } from 'rxjs';
 
-export const authGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
+export const authGuard: CanActivateFn = (route, state): Observable<boolean | UrlTree> | boolean => {
+  const auth = inject(AuthService);
   const router = inject(Router);
 
-  if (authService.isAuthenticated()) {
-    return true;
-  }
+  // Verificação síncrona inicial
+  if (auth.isAuthenticated()) return true;
 
-  authService.saveReturnUrl(state.url);
-  router.navigate(['/login']);
-  return false;
+  // Fallback assíncrono para atualizações
+  return auth.authStatus$.pipe(
+    take(1),
+    map(isAuthenticated => {
+      if (isAuthenticated) return true;
+      
+      auth.saveReturnUrl(state.url);
+      return router.parseUrl('/login');
+    })
+  );
 };
 
 export const adminGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
+  const auth = inject(AuthService);
   const router = inject(Router);
 
-  if (!authService.isAuthenticated()) {
-    authService.saveReturnUrl(state.url);
-    return router.createUrlTree(['/login']);
+  if (!auth.isAuthenticated()) {
+    auth.saveReturnUrl(state.url);
+    return router.parseUrl('/login');
   }
 
-  if (authService.isAdmin()) {
-    return true;
-  }
-
-  router.navigate(['/acesso-negado']);
-  return false;
+  return auth.isAdmin() ? true : router.parseUrl('/acesso-negado');
 };
