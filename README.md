@@ -9,11 +9,12 @@ To start a local development server, run:
 ```bash
 npm install -g @angular/cli
 ```
+
 ```bash
 npm install -g json-server
 ```
+
 ```
-```bash
 npm install
 ```
 
