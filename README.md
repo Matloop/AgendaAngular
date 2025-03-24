@@ -5,6 +5,17 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 ## Development server
 
 To start a local development server, run:
+```bash
+```bash
+npm install -g @angular/cli
+```
+```bash
+npm install -g json-server
+```
+```
+```bash
+npm install
+```
 
 ```bash
 npm start
