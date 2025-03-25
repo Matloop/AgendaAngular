@@ -25,5 +25,34 @@ npm start
 ```bash
 npx json-server db.json
 ```
-
+taskmaster/
+│
+├── public/
+│   └── index.html
+│
+├── src/
+│   ├── compromissos
+│   │   locais
+│   │   contatos
+│   │   guards
+│   │   services
+│   │
+│   ├── context/
+│   │   └── TaskContext.js
+│   │
+│   ├── hooks/
+│   │   └── useLocalStorage.js
+│   │
+│   ├── utils/
+│   │   └── taskHelpers.js
+│   │
+│   ├── App.js
+│   └── index.js
+│
+├── tests/
+│   ├── TaskList.test.js
+│   └── TaskItem.test.js
+│
+├── package.json
+├── vite.config.js
 
